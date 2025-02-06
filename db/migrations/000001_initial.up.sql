@@ -51,6 +51,16 @@ CREATE TABLE IF NOT EXISTS user_apitoken (
 
 CREATE INDEX users_username_idx ON users (username);
 
+CREATE TABLE IF NOT EXISTS sync_log(
+    id            bigserial NOT NULL PRIMARY KEY,
+    echis_id TEXT NOT NULL UNIQUE,
+    event_id TEXT NOT NULL UNIQUE,
+    event_date TEXT,
+    created     timestamptz DEFAULT CURRENT_TIMESTAMP,
+    updated           timestamptz        DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX sync_log_echisid ON sync_log(echis_id);
+
 --
 INSERT INTO user_roles(name, description)
 VALUES ('Administrator', 'For the Administrators'),

@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"rtcgw/config"
-	"rtcgw/models"
+	"rtcgw/controllers"
 	"sync"
 	"time"
 )
@@ -46,11 +46,16 @@ func main() {
 func startAPIServer(wg *sync.WaitGroup) {
 	defer wg.Done()
 	router := gin.Default()
-	v2 := router.Group("/api", models.BasicAuth())
+	v2 := router.Group("/api", BasicAuth())
 	{
 		v2.GET("/test2", func(c *gin.Context) {
 			c.String(200, "Authorized")
 		})
+		r := new(controllers.ResultsController)
+		v2.POST("/results", r.Start)
+
+		e := new(controllers.ClientsController)
+		v2.POST("/clients", e.Start)
 
 	}
 	// Handle error response when a route is not defined
@@ -62,6 +67,3 @@ func startAPIServer(wg *sync.WaitGroup) {
 		log.Fatalf("Could not start GIN server: %v", err)
 	}
 }
-
-//TIP See GoLand help at <a href="https://www.jetbrains.com/help/go/">jetbrains.com/help/go/</a>.
-// Also, you can try interactive lessons for GoLand by selecting 'Help | Learn IDE Features' from the main menu.

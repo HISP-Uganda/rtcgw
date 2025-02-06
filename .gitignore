@@ -1,6 +1,6 @@
 # app build output
 rtcgw
-workers/worker
+workers/workers
 
 # cross-compiled binaries
 dist/

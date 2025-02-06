@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"rtcgw/config"
 	"strings"
 )
 
@@ -11,7 +12,7 @@ var Dhis2Client *Client
 var Dhis2Server *Server
 
 func init() {
-	// InitDhis2Server()
+	InitDhis2Server()
 	Dhis2Client, _ = Dhis2Server.NewDhis2Client()
 }
 
@@ -23,15 +24,15 @@ func GetDHIS2BaseURL(url string) (string, error) {
 	return url, errors.New("URL doesn't contain /api/ part")
 }
 
-//func InitDhis2Server() {
-//	Dhis2Server = &Server{
-//		BaseUrl:    config.RTCGWConf.API.DHIS2BaseURL,
-//		Username:   config.RTCGWConf.API.DHIS2User,
-//		Password:   config.RTCGWConf.API.DHIS2Password,
-//		AuthToken:  config.RTCGWConf.API.DHIS2PAT,
-//		AuthMethod: config.RTCGWConf.API.DHIS2AuthMethod,
-//	}
-//}
+func InitDhis2Server() {
+	Dhis2Server = &Server{
+		BaseUrl:    config.RTCGwConf.API.DHIS2BaseURL,
+		Username:   config.RTCGwConf.API.DHIS2User,
+		Password:   config.RTCGwConf.API.DHIS2Password,
+		AuthToken:  config.RTCGwConf.API.DHIS2PAT,
+		AuthMethod: config.RTCGwConf.API.DHIS2AuthMethod,
+	}
+}
 
 func (s *Server) NewDhis2Client() (*Client, error) {
 	client := resty.New()
