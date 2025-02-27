@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hibiken/asynq"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 	"rtcgw/models"
 	"rtcgw/tasks"
 )
@@ -13,7 +14,9 @@ type ClientsController struct{}
 func (b *ClientsController) Start(c *gin.Context) {
 	var clientRequest models.ECHISRequest
 	if err := c.ShouldBindJSON(&clientRequest); err != nil {
-		RespondWithError(400, "Invalid JSON payload", c)
+		errorMessages := models.FormatValidationError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
+		// RespondWithError(http.StatusBadRequest, errorMessages, c)
 		return
 	}
 	c.JSON(200, gin.H{
@@ -28,5 +31,5 @@ func (b *ClientsController) Start(c *gin.Context) {
 	if err != nil {
 		log.Fatalf("could not enqueue task: %v", err)
 	}
-	log.Printf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
+	log.Printf("enqueued eCHIS task: id=%s queue=%s", info.ID, info.Queue)
 }

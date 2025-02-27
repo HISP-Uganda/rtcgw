@@ -74,7 +74,6 @@ func AuthenticateUserToken(token string) (bool, int64) {
             token = $1 AND is_active = TRUE LIMIT 1`,
 		token).StructScan(&userToken)
 	if err != nil {
-		// fmt.Printf("User:[%v]", err)
 		return false, 0
 	}
 	// fmt.Printf("User:[%v]", userObj)

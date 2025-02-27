@@ -29,6 +29,7 @@ func main() {
 	// mux maps a type to a handler
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(tasks.TypeSendResults, tasks.HandleResultsTask)
+	mux.HandleFunc(tasks.TypeCreateClient, tasks.HandleClientTask)
 	// ...register other handlers...
 
 	if err := srv.Run(mux); err != nil {

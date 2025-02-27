@@ -11,12 +11,12 @@ import (
 )
 
 type LabXpertResult struct {
-	PatientID  string `json:"patient_id"`
+	PatientID  string `json:"patient_id" binding:"required"`
 	Lab        string `json:"lab,omitempty"`
 	MTB        string `json:"mtb"`
 	RR         string `json:"rr"`
 	ResultDate string `json:"result_date"`
-	FacilityID string `json:"facility_id"`
+	FacilityID string `json:"facility_dhis2_id"`
 }
 
 func SearchTE(client *clients.Client, echisID, orgUnit, program string) (bool, []tracker.TrackedEntity) {
@@ -65,28 +65,67 @@ func (r *LabXpertResult) CheckDhis2Presence(c *clients.Client) bool {
 
 }
 
-func (r *LabXpertResult) InDhis2() bool {
+func (r *LabXpertResult) InDhis2() (*SyncLog, bool) {
 	syncLog, err := GetSyncLogByECHISID(r.PatientID)
 	if err != nil {
 		log.Infof("Error getting sync log for patient: %s", r.PatientID)
-		return false
+		return nil, false
 	}
-	return syncLog != nil
+	return syncLog, true
 }
 
 func (r *LabXpertResult) SaveResults(c *clients.Client) {
-	exists, instances := SearchTE(c,
-		r.PatientID, r.FacilityID, config.RTCGwConf.API.DHIS2TrackerProgram)
-	if !exists {
-		log.Infof("TE not found in DHIS2 for patient: %s, facility: %s, program: %s",
-			r.PatientID, r.FacilityID, config.RTCGwConf.API.DHIS2TrackerProgram)
+	//exists, instances := SearchTE(c,
+	//	r.PatientID, r.FacilityID, config.RTCGwConf.API.DHIS2TrackerProgram)
+	//if !exists {
+	//	log.Infof("TE not found in DHIS2 for patient: %s, facility: %s, program: %s",
+	//		r.PatientID, r.FacilityID, config.RTCGwConf.API.DHIS2TrackerProgram)
+	//	return
+	//}
+	//if len(instances) > 0 {
+	//	log.Infof("TE found in DHIS2 for patient: %s, facility: %s, program: %s",
+	//		r.PatientID, r.FacilityID, config.RTCGwConf.API.DHIS2TrackerProgram)
+	//	// Update tracked entity
+	//	// TODO: Implement update tracked entity function
+	//
+	//}
+	dhis2Log, present := r.InDhis2()
+	if !present {
+		// Alert that no match found in DHIS2 and return
+		log.Infof("No match found in DHIS2 for eCHISID %s", r.PatientID)
 		return
 	}
-	if len(instances) > 0 {
-		log.Infof("TE found in DHIS2 for patient: %s, facility: %s, program: %s",
-			r.PatientID, r.FacilityID, config.RTCGwConf.API.DHIS2TrackerProgram)
-		// Update tracked entity
-		// TODO: Implement update tracked entity function
+	// create event update payload
+	log.Infof("Updating event: %s", dhis2Log.EventID)
 
+}
+
+// GetResult returns the result as it is in DHIS2 and a Yes/No for diagnosis status
+func (r *LabXpertResult) GetResult() (string, string) {
+	switch r.MTB {
+	case "DETECTED VERY LOW", "DETECTED LOW", "DETECTED MEDIUM", "DETECTED HIGH":
+		switch r.RR {
+		case "DETECTED":
+			return "MTB detected, rifampicin resistance detected", "Yes"
+		case "INDETERMINATE":
+			return "MTB detected, rifampicin resistance indeterminate", "Yes"
+		case "NOT DETECTED":
+			return "MTB detected, rifampicin resistance not detected", "Yes"
+		case "Invalid":
+			return "Invalid", "No"
+		case "Error":
+			return "Error", "No"
+		}
+	case "ERROR":
+		return "Error", "No"
+	case "INVALID":
+		return "Invalid", "No"
+	case "NO RESULT":
+		return "No result", "No"
+	case "NOT DETECTED":
+		return "MTB not detected", "No"
+	default:
+		return "No Result", "No"
 	}
+	return "No result", "No"
 }

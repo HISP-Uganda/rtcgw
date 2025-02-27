@@ -6,11 +6,12 @@ import (
 
 // NestedPayload represents the top-level structure of a nested payload for DHIS2 tracker data import.
 type NestedPayload struct {
-	TrackedEntities []NestedTrackedEntity `json:"trackedEntities,omitempty"`
+	TrackedEntities []NestedTrackedEntity `json:"trackedEntityInstances,omitempty"`
 }
 
 // NestedTrackedEntity represents a tracked entity with nested enrollments.
 type NestedTrackedEntity struct {
+	Attributes        []NestedAttribute  `json:"attributes,omitempty"`
 	Enrollments       []NestedEnrollment `json:"enrollments,omitempty"`
 	OrgUnit           string             `json:"orgUnit"`
 	TrackedEntityType string             `json:"trackedEntityType"`
@@ -18,14 +19,14 @@ type NestedTrackedEntity struct {
 
 // NestedEnrollment represents an enrollment with nested attributes and events.
 type NestedEnrollment struct {
-	Attributes        []NestedAttribute `json:"attributes,omitempty"`
-	EnrolledAt        time.Time         `json:"enrolledAt"`
-	Events            []NestedEvent     `json:"events,omitempty"`
-	OccurredAt        time.Time         `json:"occurredAt"`
-	OrgUnit           string            `json:"orgUnit"`
-	Program           string            `json:"program"`
-	Status            string            `json:"status"`
-	TrackedEntityType string            `json:"trackedEntityType"`
+	Attributes []NestedAttribute `json:"attributes,omitempty"`
+	EnrolledAt time.Time         `json:"enrollmentDate"`
+	Events     []NestedEvent     `json:"events,omitempty"`
+	OccurredAt time.Time         `json:"incidentDate"`
+	OrgUnit    string            `json:"orgUnit"`
+	Program    string            `json:"program"`
+	Status     string            `json:"status"`
+	// TrackedEntityType string            `json:"trackedEntityType"`
 }
 
 // NestedAttribute represents an attribute within an enrollment.
@@ -42,10 +43,10 @@ type NestedEvent struct {
 	DataValues               []DataValue `json:"dataValues,omitempty"`
 	EnrollmentStatus         string      `json:"enrollmentStatus,omitempty"`
 	Notes                    []Note      `json:"notes,omitempty"`
-	OccurredAt               time.Time   `json:"occurredAt"`
+	OccurredAt               time.Time   `json:"eventDate"`
 	OrgUnit                  string      `json:"orgUnit"`
 	Program                  string      `json:"program"`
 	ProgramStage             string      `json:"programStage"`
-	ScheduledAt              time.Time   `json:"scheduledAt,omitempty"`
+	ScheduledAt              *time.Time  `json:"dueDate,omitempty"`
 	Status                   string      `json:"status"`
 }

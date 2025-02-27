@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hibiken/asynq"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 	"rtcgw/models"
 	"rtcgw/tasks"
 )
@@ -13,7 +14,7 @@ type ResultsController struct{}
 func (r *ResultsController) Start(c *gin.Context) {
 	var result models.LabXpertResult
 	if err := c.ShouldBindJSON(&result); err != nil {
-		RespondWithError(400, "Invalid JSON payload", c)
+		RespondWithError(http.StatusBadRequest, err.Error(), c)
 		return
 	}
 	c.JSON(200, gin.H{

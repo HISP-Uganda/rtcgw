@@ -11,18 +11,18 @@ import (
 
 // User is our user object
 type User struct {
-	ID           int64     `db:"id" json:"id"`
-	UID          string    `db:"uid" json:"uid"`
-	Username     string    `db:"username" json:"username"`
-	Password     string    `db:"password" json:"-"`
-	FirstName    string    `db:"firstname" json:"firstname"`
-	LastName     string    `db:"lastname" json:"lastname"`
-	Email        string    `db:"email" json:"email"`
-	Phone        string    `db:"telephone" json:"telephone"`
-	IsActive     bool      `db:"is_active" json:"is_active"`
-	IsSystemUser bool      `db:"is_system_user" json:"is_system_user"`
-	Created      time.Time `db:"created" json:"created"`
-	Updated      time.Time `db:"updated" json:"updated"`
+	ID           int64      `db:"id" json:"-"`
+	UID          string     `db:"uid" json:"uid"`
+	Username     string     `db:"username" json:"username"`
+	Password     string     `db:"password" json:"-"`
+	FirstName    string     `db:"firstname" json:"firstname"`
+	LastName     string     `db:"lastname" json:"lastname"`
+	Email        string     `db:"email" json:"email"`
+	Phone        string     `db:"telephone" json:"telephone"`
+	IsActive     bool       `db:"is_active" json:"is_active"`
+	IsSystemUser bool       `db:"is_system_user" json:"is_system_user"`
+	Created      *time.Time `db:"created" json:"created"`
+	Updated      *time.Time `db:"updated" json:"updated"`
 }
 
 func (u *User) DeactivateAPITokens(token string) {
@@ -35,12 +35,13 @@ func (u *User) DeactivateAPITokens(token string) {
 }
 
 type UserToken struct {
-	ID       int64     `db:"id" json:"id"`
-	UserID   int64     `db:"user_id" json:"user_id"`
-	Token    string    `db:"token" json:"token"`
-	IsActive bool      `db:"is_active" json:"is_active"`
-	Created  time.Time `db:"created" json:"created"`
-	Updated  time.Time `db:"updated" json:"updated"`
+	ID        int64     `db:"id" json:"id"`
+	UserID    int64     `db:"user_id" json:"user_id"`
+	Token     string    `db:"token" json:"token"`
+	IsActive  bool      `db:"is_active" json:"is_active"`
+	ExpiresAt time.Time `db:"expires_at" json:"expires_at"`
+	Created   time.Time `db:"created_at" json:"created_at"`
+	Updated   time.Time `db:"updated_at" json:"updated_at"`
 }
 
 func (ut *UserToken) Save() {
@@ -66,7 +67,7 @@ func GetUserByUID(uid string) (*User, error) {
 	userObj := User{}
 	err := db.GetDB().QueryRowx(
 		`SELECT
-            id, uid, username, firstname, lastname , telephone, email
+            id, uid, username, firstname, lastname , telephone, email, created, updated, is_active, is_system_user
         FROM users
         WHERE
             uid = $1`,
@@ -81,7 +82,7 @@ func GetUserById(id int64) (*User, error) {
 	userObj := User{}
 	err := db.GetDB().QueryRowx(
 		`SELECT
-            id, uid, username, firstname, lastname , telephone, email
+            id, uid, username, firstname, lastname , telephone, email, created, updated, is_active, is_system_user
         FROM users
         WHERE
             id = $1`,

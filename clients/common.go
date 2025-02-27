@@ -1,8 +1,10 @@
 package clients
 
 import (
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"net/url"
 )
 
 type Client struct {
@@ -31,13 +33,44 @@ func (c *Client) GetResource(resourcePath string, params map[string]string) (*re
 	}
 	return resp, err
 }
-func (c *Client) PostResource(resourcePath string, data interface{}) (*resty.Response, error) {
-	resp, err := c.RestClient.R().
+func (c *Client) PostResource(resourcePath string, params map[string]any, data interface{}) (*resty.Response, error) {
+	request := c.RestClient.R()
+	// Prepare query parameters
+	queryParams := url.Values{}
+	// XXX: this ensures that all parameters added via -Q to and command are added
+	// newParams := config.CombineMaps(params, config.ParamsMap(config.QueryParams))
+	// newParams = config.CombineMaps(newParams, config.ParamsMap(strings.Split(config.QueryParamsString, ",")))
+
+	for key, value := range params {
+		switch v := value.(type) {
+		case string:
+			queryParams.Add(key, v)
+		case bool:
+			if v {
+				queryParams.Add(key, "true")
+			} else {
+				queryParams.Add(key, "false")
+			}
+		case []string:
+			for _, item := range v {
+				queryParams.Add(key, item)
+			}
+		default:
+			return nil, fmt.Errorf("unsupported query parameter type for key %s", key)
+		}
+	}
+
+	// Set the query parameters
+	if len(queryParams) > 0 {
+		request.SetQueryParamsFromValues(queryParams)
+	}
+
+	resp, err := request.
 		SetHeader("Content-Type", "application/json").
 		SetBody(data).
 		Post(resourcePath)
 	if err != nil {
-		log.Errorf("Error when calling `PostResource: %v`", err)
+		log.Fatalf("Error when calling `PostResource`: %v", err)
 	}
 	return resp, err
 }

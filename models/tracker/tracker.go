@@ -74,17 +74,17 @@ type Event struct {
 	ProgramStage             string         `json:"programStage"`
 	Enrollment               string         `json:"enrollment"`
 	Program                  string         `json:"program"`
-	TrackedEntity            string         `json:"trackedEntity,omitempty"`
+	TrackedEntity            string         `json:"trackedEntityInstance,omitempty"`
 	Status                   string         `json:"status"`
 	EnrollmentStatus         string         `json:"enrollmentStatus,omitempty"`
 	OrgUnit                  string         `json:"orgUnit"`
-	CreatedAt                time.Time      `json:"createdAt"`
+	CreatedAt                time.Time      `json:"created"`
 	CreatedAtClient          time.Time      `json:"createdAtClient,omitempty"`
-	UpdatedAt                time.Time      `json:"updatedAt"`
+	UpdatedAt                time.Time      `json:"lastUpdated"`
 	UpdatedAtClient          time.Time      `json:"updatedAtClient,omitempty"`
-	ScheduledAt              time.Time      `json:"scheduledAt,omitempty"`
-	OccurredAt               time.Time      `json:"occurredAt"`
-	CompletedAt              time.Time      `json:"completedAt,omitempty"`
+	ScheduledAt              time.Time      `json:"dueDate,omitempty"`
+	OccurredAt               time.Time      `json:"eventDate"`
+	CompletedAt              time.Time      `json:"completedDate,omitempty"`
 	CompletedBy              string         `json:"completedBy,omitempty"`
 	FollowUp                 bool           `json:"followUp,omitempty"`
 	Deleted                  bool           `json:"deleted,omitempty"`
@@ -102,14 +102,14 @@ type Event struct {
 
 // DataValue represents a data value in an event or entity in DHIS2.
 type DataValue struct {
-	DataElement       string    `json:"dataElement"`
-	Value             string    `json:"value"`
-	ProvidedElsewhere bool      `json:"providedElsewhere,omitempty"`
-	CreatedAt         time.Time `json:"createdAt"`
-	UpdatedAt         time.Time `json:"updatedAt"`
-	StoredBy          string    `json:"storedBy,omitempty"`
-	CreatedBy         string    `json:"createdBy,omitempty"`
-	UpdatedBy         string    `json:"updatedBy,omitempty"`
+	DataElement       string     `json:"dataElement"`
+	Value             string     `json:"value"`
+	ProvidedElsewhere bool       `json:"providedElsewhere,omitempty"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt         *time.Time `json:"updatedAt,omitempty"`
+	StoredBy          string     `json:"storedBy,omitempty"`
+	CreatedBy         string     `json:"createdBy,omitempty"`
+	UpdatedBy         string     `json:"updatedBy,omitempty"`
 }
 
 // Relationship represents a relationship between entities in DHIS2.
@@ -147,4 +147,15 @@ type FlatPayload struct {
 	Enrollments     []Enrollment    `json:"enrollments,omitempty"`
 	Events          []Event         `json:"events,omitempty"`
 	Relationships   []Relationship  `json:"relationships,omitempty"`
+}
+
+type EventUpdatePayload struct {
+	Event string `json:"event"`
+	//EventDate     string      `json:"eventDate"`
+	Program       string      `json:"program"`
+	OrgUnit       string      `json:"orgUnit"`
+	ProgramStage  string      `json:"programState"`
+	Status        string      `json:"status,omitempty"`
+	TrackedEntity string      `json:"trackedEntityInstance,omitempty"`
+	DataValues    []DataValue `json:"dataValues"`
 }

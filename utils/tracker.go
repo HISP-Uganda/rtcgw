@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	log "github.com/sirupsen/logrus"
+	"reflect"
 	"rtcgw/clients"
 	"rtcgw/config"
+	"strings"
+	"time"
 )
 
 // SearchTE searches for the existence of a TrackedEntity in DHIS2 that matches a given tracked entity attribute value, orgUnit and Program
@@ -59,4 +62,41 @@ func PrintResponse(responseMap any, pretty bool) (string, error) {
 		}
 		return string(retJson), nil
 	}
+}
+
+func GetFieldsByTag(s interface{}, targetUseAs string) map[string]string {
+	val := reflect.ValueOf(s)
+	typ := reflect.TypeOf(s)
+
+	// Ensure it's a struct
+	if val.Kind() != reflect.Struct {
+		fmt.Println("Provided value is not a struct")
+		return nil
+	}
+
+	result := make(map[string]string)
+
+	// Iterate through struct fields
+	for i := 0; i < val.NumField(); i++ {
+		field := typ.Field(i)
+		useAsTag := field.Tag.Get("use_as") // Extract use_as tag
+		jsonTag := field.Tag.Get("json")    // Extract json tag
+
+		// Ensure jsonTag exists; otherwise, use field name as fallback
+		jsonTag = strings.Split(jsonTag, ",")[0]
+		if jsonTag == "" {
+			jsonTag = field.Name
+		}
+
+		// If the use_as tag matches the desired value, add to result
+		if useAsTag == targetUseAs {
+			result[jsonTag] = val.Field(i).String()
+		}
+	}
+
+	return result
+}
+
+func GetCurrentDate() time.Time {
+	return time.Now().UTC()
 }
