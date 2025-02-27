@@ -41,12 +41,15 @@ CREATE TABLE IF NOT EXISTS users
     updated           timestamptz        DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS user_apitoken (
-    id             bigserial NOT NULL PRIMARY KEY,
-    user_id       BIGINT    NOT NULL REFERENCES users ON DELETE CASCADE ON UPDATE CASCADE,
-    token         TEXT      NOT NULL,
-    expires_at     timestamptz,
-    created_at     timestamptz DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS user_apitoken
+(
+    id         bigserial NOT NULL PRIMARY KEY,
+    user_id    BIGINT    NOT NULL REFERENCES users ON DELETE CASCADE ON UPDATE CASCADE,
+    token      TEXT      NOT NULL,
+    is_active  BOOLEAN   NOT NULL DEFAULT 't',
+    expires_at timestamptz,
+    created_at timestamptz        DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamptz        DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX users_username_idx ON users (username);
@@ -55,11 +58,26 @@ CREATE TABLE IF NOT EXISTS sync_log(
     id            bigserial NOT NULL PRIMARY KEY,
     echis_id TEXT NOT NULL UNIQUE,
     event_id TEXT NOT NULL UNIQUE,
+    tracked_entity TEXT,
     event_date TEXT,
     created     timestamptz DEFAULT CURRENT_TIMESTAMP,
     updated           timestamptz        DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX sync_log_echisid ON sync_log(echis_id);
+
+-- FUNCTIONS
+CREATE OR REPLACE FUNCTION generate_uid() RETURNS text
+AS $function$
+DECLARE
+    chars  text [] := '{0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z}';
+    result text := chars [11 + random() * (array_length(chars, 1) - 11)];
+BEGIN
+    for i in 1..10 loop
+            result := result || chars [1 + random() * (array_length(chars, 1) - 1)];
+        end loop;
+    return result;
+END;
+$function$ LANGUAGE plpgsql;
 
 --
 INSERT INTO user_roles(name, description)
