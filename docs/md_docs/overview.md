@@ -95,7 +95,7 @@ Content-Type: application/json
 {
   "echis_patient_id": "1234567890", // Mandatory
   "national_identification_number": "",
-  "name": "",
+  "name": "", // Mandatiry
   "patient_phone": "",
   "patient_age_in_years": "",
   "patient_age_in_months": "",
@@ -103,10 +103,10 @@ Content-Type: application/json
   "patient_gender": "",
   "client_category": "",
   "facility_id": "",
-  "facility_dhis2_id": "", // Mandatory
+  "facility_dhis2_id": "", // Mandatory DHIS2 UID for facility
   "patient_category": "",
-  "cough": "",
-  "fever": "",
+  "cough": "", // Yes or No
+  "fever": "", // Yes or No
   "weight_loss": "",
   "excessive_night_sweat": "",
   "is_on_tb_treatment": "",

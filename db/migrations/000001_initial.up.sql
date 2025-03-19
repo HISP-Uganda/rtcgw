@@ -60,6 +60,12 @@ CREATE TABLE IF NOT EXISTS sync_log(
     event_id TEXT NOT NULL UNIQUE,
     tracked_entity TEXT,
     event_date TEXT,
+    org_unit TEXT,
+    echis_client_creation_errors TEXT,
+    results_updated BOOLEAN NOT NULL DEFAULT FALSE,
+    results_update_errors TEXT,
+    lab_event TEXT,
+    lab_enrollment TEXT,
     created     timestamptz DEFAULT CURRENT_TIMESTAMP,
     updated           timestamptz        DEFAULT CURRENT_TIMESTAMP
 );

@@ -68,7 +68,7 @@ func (r *LabXpertResult) CheckDhis2Presence(c *clients.Client) bool {
 func (r *LabXpertResult) InDhis2() (*SyncLog, bool) {
 	syncLog, err := GetSyncLogByECHISID(r.PatientID)
 	if err != nil {
-		log.Infof("Error getting sync log for patient: %s", r.PatientID)
+		log.Infof("Error getting sync log for patient: %s: Error: %v", r.PatientID, err.Error())
 		return nil, false
 	}
 	return syncLog, true

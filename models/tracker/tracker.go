@@ -1,6 +1,12 @@
 package tracker
 
-import "time"
+import (
+	"fmt"
+	"github.com/goccy/go-json"
+	log "github.com/sirupsen/logrus"
+	"rtcgw/clients"
+	"time"
+)
 
 // User represents a user in DHIS2.
 type User struct {
@@ -34,10 +40,10 @@ type Attribute struct {
 	Attribute   string    `json:"attribute"`
 	Code        string    `json:"code,omitempty"`
 	DisplayName string    `json:"displayName,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	CreatedAt   time.Time `json:"createdAt,omitempty"`
+	UpdatedAt   time.Time `json:"updatedAt,omitempty"`
 	StoredBy    string    `json:"storedBy,omitempty"`
-	ValueType   string    `json:"valueType"`
+	ValueType   string    `json:"valueType,omitempty"`
 	Value       string    `json:"value"`
 }
 
@@ -158,4 +164,83 @@ type EventUpdatePayload struct {
 	Status        string      `json:"status,omitempty"`
 	TrackedEntity string      `json:"trackedEntityInstance,omitempty"`
 	DataValues    []DataValue `json:"dataValues"`
+}
+
+type TrackedEntityUpdatePayload struct {
+	TrackedEntityInstance string            `json:"trackedEntityInstance"`
+	OrgUnit               string            `json:"orgUnit"`
+	TrackedEntityType     string            `json:"trackedEntityType"`
+	Attributes            []NestedAttribute `json:"attributes"`
+	Relationships         []Relationship    `json:"relationships,omitempty"`
+}
+
+type EnrollmentPayload struct {
+	Program               string `json:"program"`
+	Status                string `json:"status"`
+	OrgUnit               string `json:"orgUnit"`
+	EnrollmentDate        string `json:"enrollmentDate"`
+	IncidentDate          string `json:"incidentDate"`
+	TrackedEntityInstance string `json:"trackedEntityInstance"`
+}
+
+type EventCreationPayload struct {
+	TrackedEntityInstance string      `json:"trackedEntityInstance"`
+	Program               string      `json:"program"`
+	ProgramStage          string      `json:"programStage"`
+	Enrollment            string      `json:"enrollment"`
+	OrgUnit               string      `json:"orgUnit"`
+	Status                string      `json:"status"`
+	EventDate             string      `json:"eventDate"`
+	DataValues            []DataValue `json:"dataValues"`
+}
+
+func (e *EnrollmentPayload) Create() (string, error) {
+	resp, err := clients.Dhis2Client.PostResource("enrollments", nil, e)
+	if err != nil {
+		return "", err
+	}
+	if resp.IsSuccess() {
+		var response RootResponse
+		err := json.Unmarshal(resp.Body(), &response)
+		if err != nil {
+			log.Infof("Error unmarshalling enrollment response: %v", string(resp.Body()))
+			return "", err
+		}
+		enID, err := response.GetEnrolmentIDReferenceAfterCreatingEnrolment()
+		if err != nil {
+			log.Infof("Error getting EnrolmentID %v", string(resp.Body()))
+			return "", err
+		}
+		return enID, nil
+	} else {
+		return "", fmt.Errorf("failed to create enrollment: %v", string(resp.Body()))
+	}
+	return "", fmt.Errorf("failed to create enrollment")
+}
+
+func (e *EventCreationPayload) Create() (string, error) {
+	eventData := map[string][]EventCreationPayload{
+		"events": {*e},
+	}
+	resp, err := clients.Dhis2Client.PostResource("events", nil, eventData)
+	if err != nil {
+		return "", err
+	}
+	if resp.IsSuccess() {
+		// Get Event ID
+		var response RootResponse
+		err := json.Unmarshal(resp.Body(), &response)
+		if err != nil {
+			return "", err
+		}
+		evID, err := response.GetEventIDReferenceAfterCreatingEvent()
+		if err != nil {
+			return "", err
+		}
+		return evID, nil
+	} else {
+		log.Debugf("failed to create event: %v", string(resp.Body()))
+		// return "", fmt.Errorf("failed to create event: %v", string(resp.Body()))
+	}
+	return "", fmt.Errorf("failed to create event")
 }

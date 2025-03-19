@@ -19,9 +19,7 @@ func (b *ClientsController) Start(c *gin.Context) {
 		// RespondWithError(http.StatusBadRequest, errorMessages, c)
 		return
 	}
-	c.JSON(200, gin.H{
-		"message": "client queued for saving to DHIS2",
-	})
+
 	client := c.MustGet("asynqClient").(*asynq.Client)
 	task, err := tasks.NewClientTask(clientRequest)
 	if err != nil {
@@ -32,4 +30,8 @@ func (b *ClientsController) Start(c *gin.Context) {
 		log.Fatalf("could not enqueue task: %v", err)
 	}
 	log.Printf("enqueued eCHIS task: id=%s queue=%s", info.ID, info.Queue)
+
+	c.JSON(200, gin.H{
+		"message": "client queued for saving to DHIS2",
+	})
 }

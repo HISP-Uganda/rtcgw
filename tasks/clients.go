@@ -42,6 +42,7 @@ func HandleClientTask(ctx context.Context, task *asynq.Task) error {
 		log.Infof("Client saved to DHIS2: %s", client.ECHISID)
 	} else {
 		log.Infof("Client already exists in DHIS2: %s", client.ECHISID)
+		client.UpdateClient(clients.Dhis2Client, syncLog)
 	}
 
 	return nil

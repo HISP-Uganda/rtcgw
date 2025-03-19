@@ -1,5 +1,12 @@
 package tracker
 
+import (
+	"errors"
+	"fmt"
+	log "github.com/sirupsen/logrus"
+	"strings"
+)
+
 // RootResponse represents the top-level response structure.
 type RootResponse struct {
 	HttpStatus     string   `json:"httpStatus"`
@@ -13,13 +20,15 @@ type RootResponse struct {
 type Response struct {
 	ResponseType    string          `json:"responseType"`
 	Status          string          `json:"status"`
-	Imported        int             `json:"imported"`
-	Updated         int             `json:"updated"`
-	Deleted         int             `json:"deleted"`
-	Ignored         int             `json:"ignored"`
+	Imported        int             `json:"imported,omitempty"`
+	Updated         int             `json:"updated,omitempty"`
+	Deleted         int             `json:"deleted,omitempty"`
+	Ignored         int             `json:"ignored,omitempty"`
+	ImportCount     ImportCount     `json:"importCount,omitempty"`
+	Conflicts       []any           `json:"conflicts,omitempty"`
 	ImportOptions   ImportOptions   `json:"importOptions"`
 	ImportSummaries []ImportSummary `json:"importSummaries"`
-	Total           int             `json:"total"`
+	Total           int             `json:"total,omitempty"`
 }
 
 // ImportOptions represents various import configuration options.
@@ -76,8 +85,22 @@ type ImportCount struct {
 	Deleted  int `json:"deleted"`
 }
 
-// GetEventReference retrieves the first event reference under enrollments → importSummaries → events.
-func (r *RootResponse) GetTrackedEntityAndEventReferences() (string, string, bool) {
+func ConflictsToError(conflicts []any) error {
+	if len(conflicts) == 0 {
+		return nil
+	}
+
+	var conflictMessages []string
+	for _, conflict := range conflicts {
+		conflictMessages = append(conflictMessages, fmt.Sprintf("%v", conflict))
+	}
+
+	// Combine all conflicts into a single error message.
+	return fmt.Errorf("conflicts: %s", strings.Join(conflictMessages, "; "))
+}
+
+// GetTrackedEntityAndEventReferences retrieves the first event reference under enrollments → importSummaries → events.
+func (r *RootResponse) GetTrackedEntityAndEventReferences() (string, string, bool, error) {
 	trackedEntityInstance := ""
 	// Traverse top-level import summaries
 	for _, summary := range r.Response.ImportSummaries {
@@ -91,12 +114,37 @@ func (r *RootResponse) GetTrackedEntityAndEventReferences() (string, string, boo
 					// Traverse event importSummaries
 					for _, eventSummary := range enrollmentSummary.Events.ImportSummaries {
 						if eventSummary.Reference != "" {
-							return trackedEntityInstance, eventSummary.Reference, true
+							// status is not ERROR
+							if eventSummary.Status != "ERROR" {
+								return trackedEntityInstance, eventSummary.Reference, true, nil
+							}
+							return trackedEntityInstance, eventSummary.Reference, true, ConflictsToError(eventSummary.Conflicts)
 						}
 					}
 				}
 			}
 		}
 	}
-	return "", "", false
+	return "", "", false, errors.New("not found")
+}
+
+func (r *RootResponse) GetEventIDReferenceAfterCreatingEvent() (string, error) {
+	for _, summary := range r.Response.ImportSummaries {
+		if summary.Status == "SUCCESS" {
+			return summary.Reference, nil
+		}
+	}
+	log.Printf("%v", r.Response.ImportSummaries)
+	return "", errors.New("not found")
+}
+
+func (r *RootResponse) GetEnrolmentIDReferenceAfterCreatingEnrolment() (string, error) {
+	for _, summary := range r.Response.ImportSummaries {
+		if summary.Status == "SUCCESS" {
+			return summary.Reference, nil
+		} else {
+
+		}
+	}
+	return "", errors.New("not found")
 }

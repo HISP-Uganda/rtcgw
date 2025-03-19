@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Charts with WebSocket</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1300px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chart {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+<h2>RTC Gateway Summary Statistics</h2>
+
+<div class="chart-container">
+    <!--<div class="card"><h3>Bar Chart</h3><div id="barChart" class="chart"></div></div>
+    <div class="card"><h3>Pie Chart</h3><div id="pieChart" class="chart"></div></div>
+    <div class="card"><h3>Line Chart</h3><div id="lineChart" class="chart"></div></div>
+    <div class="card"><h3>Scatter Chart</h3><div id="scatterChart" class="chart"></div></div>
+    <div class="card"><h3>Radar Chart</h3><div id="radarChart" class="chart"></div></div>
+    <div class="card"><h3>Gauge Chart</h3><div id="gaugeChart" class="chart"></div></div>-->
+    <div class="card"><h3>Clients from eCHIS to eCBSS vs Results from LabXpert to eCBSS</h3><div id="timeline" class="chart"></div></div>
+</div>
+
+<script>
+
+    // var option = {
+    //     // title: {
+    //     //     text: 'Daily Creation and Update Events',
+    //     //     subtext: 'Chart generated from JSON configuration'
+    //     // },
+    //     tooltip: {
+    //         trigger: 'axis'
+    //     },
+    //     legend: {
+    //         data: data.timelineChart.series.map(function(s) { return s.name; })
+    //     },
+    //     xAxis: {
+    //         type: 'category',
+    //         data: data.timelineChart.xAxisCategories
+    //     },
+    //     yAxis: {
+    //         type: 'value'
+    //     },
+    //     series: chartConfig.series.map(function(s) {
+    //         return {
+    //             name: s.name,
+    //             type: 'line',
+    //             data: s.data
+    //         };
+    //     })
+    // };
+
+    // Initialize the ECharts instance based on the prepared DOM element
+    var charts = {
+        // barChart: echarts.init(document.getElementById('barChart')),
+        // pieChart: echarts.init(document.getElementById('pieChart')),
+        // lineChart: echarts.init(document.getElementById('lineChart')),
+        // scatterChart: echarts.init(document.getElementById('scatterChart')),
+        // radarChart: echarts.init(document.getElementById('radarChart')),
+        // gaugeChart: echarts.init(document.getElementById('gaugeChart')),
+        timeLineChart: echarts.init(document.getElementById('timeline')),
+    };
+
+    var socket = new WebSocket("ws://localhost:9292/ws");
+
+    socket.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+
+        // Bar Chart
+        // charts.barChart.setOption({
+        //     title: { text: 'Bar Chart', left: 'center' },
+        //     tooltip: {},
+        //     xAxis: { type: 'category', data: data.categories },
+        //     yAxis: { type: 'value' },
+        //     series: [{ name: 'Value', type: 'bar', data: data.barValues }]
+        // });
+
+        // Pie Chart
+        // charts.pieChart.setOption({
+        //     title: { text: 'Pie Chart', left: 'center' },
+        //     tooltip: { trigger: 'item' },
+        //     legend: { bottom: '5%' },
+        //     series: [{ name: 'Distribution', type: 'pie', radius: '50%', data: data.pieValues }]
+        // });
+
+        // Line Chart
+        // charts.lineChart.setOption({
+        //     title: { text: 'Line Chart', left: 'center' },
+        //     tooltip: {},
+        //     xAxis: { type: 'category', data: data.categories },
+        //     yAxis: { type: 'value' },
+        //     series: [{ name: 'Trend', type: 'line', data: data.barValues }]
+        // });
+        // Scatter Chart
+        // charts.scatterChart.setOption({
+        //     title: { text: 'Scatter Chart', left: 'center' },
+        //     tooltip: {},
+        //     xAxis: { type: 'category', data: data.categories },
+        //     yAxis: { type: 'value' },
+        //     series: [{ name: 'Scatter', type: 'scatter', data: data.barValues }]
+        // });
+
+        // Radar Chart
+        // charts.radarChart.setOption({
+        //     title: { text: 'Radar Chart', left: 'center' },
+        //     tooltip: {},
+        //     radar: { indicator: data.pieValues.map(item => ({ name: item.name, max: 50 })) },
+        //     series: [{ name: 'Radar', type: 'radar', data: [{ value: data.pieValues.map(item => item.value) }] }]
+        // });
+
+        // Gauge Chart
+        // charts.gaugeChart.setOption({
+        //     title: { text: 'Gauge Chart', left: 'center' },
+        //     tooltip: {},
+        //     series: [{ name: 'Gauge', type: 'gauge', data: [{ value: data.barValues[0], name: "Progress" }] }]
+        // });
+
+        charts.timeLineChart.setOption(
+            {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: data.timelineChart.series.map(function(s) { return s.name; })
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.timelineChart.xAxisCategories
+                },
+                yAxis: {
+                    type: 'value',
+                },
+                series: data.timelineChart.series.map(function(s) {
+                    return {
+                        name: s.name,
+                        type: 'line',
+                        data: s.data
+                    };
+                })
+            }
+        );
+    };
+
+    socket.onerror = function(error) {
+        console.error("WebSocket error:", error);
+    };
+</script>
+</body>
+</html>

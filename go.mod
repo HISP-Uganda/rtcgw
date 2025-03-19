@@ -13,6 +13,7 @@ require (
 	github.com/goccy/go-json v0.10.2
 	github.com/golang-migrate/migrate/v4 v4.18.2
 	github.com/gomarkdown/markdown v0.0.0-20250202022148-4f606c78d442
+	github.com/gorilla/websocket v1.5.3
 	github.com/hibiken/asynq v0.25.1
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9

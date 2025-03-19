@@ -26,22 +26,25 @@ type Config struct {
 		Port                string `mapstructure:"http_port" env:"RTCGW_SERVER_PORT" env-description:"Server port" env-default:"9292"`
 		ProxyPort           string `mapstructure:"proxy_port" env:"RTCGW_PROXY_PORT" env-description:"Server port" env-default:"9191"`
 		RedisAddress        string `mapstructure:"redis_address" env:"RTCGW_REDIS" env-description:"Redis address" env-default:"127.0.0.1:6379"`
+		Domain              string `mapstructure:"domain" env:"RTCGW_DOMAIN" env-description:"Domain" env-default:"localhost:9292"`
 		MigrationsDirectory string `mapstructure:"migrations_dir" env:"RTCGW_MIGRATTIONS_DIR" env-default:"file:///usr/share/rtcgw/db/migrations"`
 		StaticDirectory     string `mapstructure:"static_directory" env:"RTC_STATIC_DIR" env-default:"./static"`
 		TemplatesDirectory  string `mapstructure:"templates_directory" env:"RTC_TEMPLATES_DIR" env-default:"./templates"`
 		DocsDirectory       string `mapstructure:"docs_directory" env:"RTC_DOCS_DIR" env-default:"./docs/my_docs"`
 	} `yaml:"server"`
 	API struct {
-		DHIS2BaseURL             string                       `mapstructure:"dhis2_base_url" env:"DHIS2_BASE_URL" env-description:"The DHIS2 instance base API URL"`
-		DHIS2User                string                       `mapstructure:"dhis2_user"  env:"DHIS2_USER" env-description:"The DHIS2 username"`
-		DHIS2Password            string                       `mapstructure:"dhis2_password"  env:"DHIS2_PASSWORD" env-description:"The DHIS2  user password"`
-		DHIS2PAT                 string                       `mapstructure:"dhis2_pat"  env:"DHIS2_PAT" env-description:"The DHIS2  Personal Access Token"`
-		DHIS2AuthMethod          string                       `mapstructure:"dhis2_auth_method"  env:"DHIS2_AUTH_METHOD" env-description:"The DHIS2 Authentication Method"`
-		DHIS2TrackerProgram      string                       `mapstructure:"dhis2_tracker_program"  env:"DHIS2_PROGRAM" env-description:"The DHIS2 tracker Program"`
-		DHIS2TrackerProgramStage string                       `mapstructure:"dhis2_tracker_program_stage"  env:"DHIS2_PROGRAM_STAGE" env-description:"The DHIS2 tracker Program Stage"`
-		DHIS2TrackedEntityType   string                       `mapstructure:"dhis2_tracked_entity_type"  env:"DHIS2_TRACKED_ENTITY_TYPE" env-description:"The DHIS2 tracked entity type"`
-		DHIS2SearchAttribute     string                       `mapstructure:"dhis2_search_attribute" env:"DHIS_SEARCH_ATTRIBUTE" env-description:"The DHIS2 Search Attribute"`
-		DHIS2Mapping             map[string]map[string]string `mapstructure:"dhis2_mapping" env:"DHIS_MAPPING" env-description:"The Request JSON keys mapping to DHIS2 Data Elements"`
+		DHIS2BaseURL                string                       `mapstructure:"dhis2_base_url" env:"DHIS2_BASE_URL" env-description:"The DHIS2 instance base API URL"`
+		DHIS2User                   string                       `mapstructure:"dhis2_user"  env:"DHIS2_USER" env-description:"The DHIS2 username"`
+		DHIS2Password               string                       `mapstructure:"dhis2_password"  env:"DHIS2_PASSWORD" env-description:"The DHIS2  user password"`
+		DHIS2PAT                    string                       `mapstructure:"dhis2_pat"  env:"DHIS2_PAT" env-description:"The DHIS2  Personal Access Token"`
+		DHIS2AuthMethod             string                       `mapstructure:"dhis2_auth_method"  env:"DHIS2_AUTH_METHOD" env-description:"The DHIS2 Authentication Method"`
+		DHIS2TrackerProgram         string                       `mapstructure:"dhis2_tracker_program"  env:"DHIS2_PROGRAM" env-description:"The DHIS2 tracker Program"`
+		DHIS2LaboratoryProgram      string                       `mapstructure:"dhis2_laboratory_program"  env:"DHIS2_LAB_PROGRAM" env-description:"The DHIS2 laboratory Program"`
+		DHIS2LaboratoryProgramStage string                       `mapstructure:"dhis2_lab_program_stage"  env:"DHIS2_LAB_PROGRAM_STAGE" env-description:"The DHIS2 laboratory Program Stage"`
+		DHIS2TrackerProgramStage    string                       `mapstructure:"dhis2_tracker_program_stage"  env:"DHIS2_PROGRAM_STAGE" env-description:"The DHIS2 tracker Program Stage"`
+		DHIS2TrackedEntityType      string                       `mapstructure:"dhis2_tracked_entity_type"  env:"DHIS2_TRACKED_ENTITY_TYPE" env-description:"The DHIS2 tracked entity type"`
+		DHIS2SearchAttribute        string                       `mapstructure:"dhis2_search_attribute" env:"DHIS_SEARCH_ATTRIBUTE" env-description:"The DHIS2 Search Attribute"`
+		DHIS2Mapping                map[string]map[string]string `mapstructure:"dhis2_mapping" env:"DHIS_MAPPING" env-description:"The Request JSON keys mapping to DHIS2 Data Elements"`
 	} `yaml:"api"`
 }
 
