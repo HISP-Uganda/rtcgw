@@ -15,7 +15,7 @@ func main() {
 		asynq.RedisClientOpt{Addr: config.RTCGwConf.Server.RedisAddress},
 		asynq.Config{
 			// Specify how many concurrent workers to use
-			Concurrency: 10,
+			Concurrency: config.RTCGwConf.Server.MaxConcurrent,
 			// Optionally specify multiple queues with different priority.
 			Queues: map[string]int{
 				"critical": 6,

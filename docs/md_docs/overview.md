@@ -1,5 +1,5 @@
 # Overview
-This service is an intermediary between multiple systems for client and lab result data exchange. The service integrates:
+This service is an intermediary between two systems for client and lab result data exchange. The service integrates:
 
 - **eCHIS:** A system that sends client data to eCBSS (a DHIS2-based system) through this service.
 
@@ -94,7 +94,7 @@ Content-Type: application/json
 ```json
 {
   "echis_patient_id": "1234567890", // Mandatory
-  "national_identification_number": "",
+  "national_identification_number": "", // maches regex '^C[MF]\d{2}[A-Za-z0-9]{10}$'
   "name": "", // Mandatiry
   "patient_phone": "",
   "patient_age_in_years": "",
@@ -103,9 +103,9 @@ Content-Type: application/json
   "patient_gender": "",
   "client_category": "",
   "facility_id": "",
-  "facility_dhis2_id": "", // Mandatory DHIS2 UID for facility
+  "facility_dhis2_id": "", // Mandatory DHIS2 UID for facility. Matches regex '^[A-Za-z][A-Za-z0-9]{10}$'
   "patient_category": "",
-  "cough": "", // Yes or No
+  "cough": "", // Yes or No if provided. Matches regex '^(Yes|No)$'
   "fever": "", // Yes or No
   "weight_loss": "",
   "excessive_night_sweat": "",
@@ -119,6 +119,40 @@ Content-Type: application/json
 ```json
 {
   "message": "client queued for saving to DHIS2"
+}
+```
+
+**Example Bad Request**
+```json
+{
+  "echis_patient_id": "12345678033399999",
+  "national_identification_number": "CM8501234512",
+  "patient_name": "",
+  "patient_phone": "256782555555",
+  "patient_age_in_years": "20",
+  "patient_age_in_months": "",
+  "patient_age_in_days": "",
+  "patient_gender": "",
+  "client_category": "National",
+  "facility_id": "11C7D0C1-D3C8-46E1-9153-8DAB30155555",
+  "facility_dhis2_id": "goFnHxlDGzD",
+  "patient_category": "National",
+  "cough": "Ye",
+  "fever": "No",
+  "weight_loss": "Yes",
+  "excessive_night_sweat": "",
+  "is_on_tb_treatment": "Yes",
+  "poor_weight_gain": ""
+}
+```
+**Example Response to Bad Request**
+```json
+{
+  "errors": {
+    "cough": "Should be exactly 'Yes' or 'No'. Notice the case",
+    "national_identification_number": "invalid national_identification_number provided.",
+    "patient_name": "patient_name is required and must be provided."
+  }
 }
 ```
 
@@ -147,7 +181,7 @@ Content-Type: application/json
   "patient_id": "1234567890",
   "mtb": "DETECTED HIGH",
   "rr": "DETECTED",
-  "results_data": "2025-01-27 13:08:27",
+  "results_date": "2025-01-27 13:08:27",
   "facility_id": "FvewOonC8lS",
   "dhis2_id": ""
 }

@@ -25,6 +25,7 @@ type Config struct {
 		Host                string `mapstructure:"host" env:"RTCGW_HOST" env-default:"localhost"`
 		Port                string `mapstructure:"http_port" env:"RTCGW_SERVER_PORT" env-description:"Server port" env-default:"9292"`
 		ProxyPort           string `mapstructure:"proxy_port" env:"RTCGW_PROXY_PORT" env-description:"Server port" env-default:"9191"`
+		MaxConcurrent       int    `mapstructure:"max_concurrent" env-description:"Maximum number of concurrent processing of tasks."`
 		RedisAddress        string `mapstructure:"redis_address" env:"RTCGW_REDIS" env-description:"Redis address" env-default:"127.0.0.1:6379"`
 		Domain              string `mapstructure:"domain" env:"RTCGW_DOMAIN" env-description:"Domain" env-default:"localhost:9292"`
 		MigrationsDirectory string `mapstructure:"migrations_dir" env:"RTCGW_MIGRATTIONS_DIR" env-default:"file:///usr/share/rtcgw/db/migrations"`
@@ -69,7 +70,7 @@ func init() {
 	configFile := flag.String("config-file", configFilePath,
 		"The path to the configuration file of the application")
 
-	ShowVersion = flag.Bool("version", false, "Display version of sukuma server")
+	ShowVersion = flag.Bool("version", false, "Display version of rtcgw")
 
 	flag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 	flag.Parse()
@@ -93,6 +94,7 @@ func init() {
 		}
 	}
 
+	RTCGwConf.Server.MaxConcurrent = 10
 	err := viper.Unmarshal(&RTCGwConf)
 	if err != nil {
 		log.Fatalf("unable to decode into struct, %v", err)
